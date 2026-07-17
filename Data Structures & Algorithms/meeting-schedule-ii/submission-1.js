@@ -1,0 +1,111 @@
+class MinHeap {
+    constructor() {
+        this.heap = [];
+    }
+
+    peek() {
+        return this.heap[0] ?? null;
+    }
+
+    size() {
+        return this.heap.length;
+    }
+
+    push(val) {
+        // val should look like: [x, y, z]
+        this.heap.push(val);
+        this.bubbleUp();
+    }
+
+    pop() {
+        if (this.heap.length === 0) return null;
+        if (this.heap.length === 1) return this.heap.pop();
+
+        const min = this.heap[0];
+        this.heap[0] = this.heap.pop();
+        this.bubbleDown();
+
+        return min;
+    }
+
+    bubbleUp() {
+        let index = this.heap.length - 1;
+
+        while (index > 0) {
+            const parent = Math.floor((index - 1) / 2);
+
+            // compare by index 0
+            if (this.heap[parent][0] <= this.heap[index][0]) break;
+
+            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];
+            index = parent;
+        }
+    }
+
+    bubbleDown() {
+        let index = 0;
+        const length = this.heap.length;
+
+        while (true) {
+            let left = 2 * index + 1;
+            let right = 2 * index + 2;
+            let smallest = index;
+
+            // compare by index 0
+            if (left < length && this.heap[left][0] < this.heap[smallest][0]) {
+                smallest = left;
+            }
+
+            if (right < length && this.heap[right][0] < this.heap[smallest][0]) {
+                smallest = right;
+            }
+
+            if (smallest === index) break;
+
+            [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
+            index = smallest;
+        }
+    }
+}
+
+
+/**
+ * Definition of Interval:
+ * class Interval {
+ *   constructor(start, end) {
+ *     this.start = start;
+ *     this.end = end;
+ *   }
+ * }
+ */
+
+class Solution {
+    /**
+     * @param {Interval[]} intervals
+     * @returns {number}
+     */
+    minMeetingRooms(intervals) {
+        if (intervals.length === 0) return 0;
+
+        // 1. sort meetings by start time
+        intervals.sort((a, b) => a.start - b.start);
+
+        const heap = new MinHeap();
+
+
+        for (let int of intervals) {
+            let start = int.start;
+            let end = int.end;
+
+            // if earliest meeting ended
+            if (heap.size() && heap.peek()[0] <= start) {
+                heap.pop();
+            }
+
+            // allocate room (push end time)
+            heap.push([end]);
+        }
+
+        return heap.size();
+    }
+}
